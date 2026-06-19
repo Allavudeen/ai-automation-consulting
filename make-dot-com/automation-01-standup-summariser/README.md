@@ -122,7 +122,7 @@ Standup Updates:
 
 ## 📸 Screenshots
 
-![Automation #1 Canvas](./screenshots/Automation 1 - Daily Standup Summary to Email.jpg)
+![Automation #1 - Daily Standup Summary to Email](./screenshots/Automation%201%20-%20Daily%20Standup%20Summary%20to%20Email.jpg)
 
 ---
 
