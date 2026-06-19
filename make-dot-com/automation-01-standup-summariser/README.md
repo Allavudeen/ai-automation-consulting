@@ -114,6 +114,12 @@ Standup Updates:
 
 ---
 
+## 📝 Note
+
+> ⚠️ API keys and personal credentials have been removed from the blueprint. Replace placeholders before importing.
+
+---
+
 ## 📸 Screenshots
 
 *(Coming soon — Make.com scenario blueprint screenshot)*
