@@ -122,7 +122,7 @@ Standup Updates:
 
 ## 📸 Screenshots
 
-*(Coming soon — Make.com scenario blueprint screenshot)*
+![Automation #1 Canvas](./screenshots/Automation 1 - Daily Standup Summary to Email.jpg)
 
 ---
 
