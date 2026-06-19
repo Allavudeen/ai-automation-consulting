@@ -130,7 +130,8 @@ Retro Feedback:
 - **Groq Model:** `llama-3.3-70b-versatile`
 - **Temperature:** 0.5 (balanced — structured but readable narrative)
 - **API Response Path:** `data → choices → [] → message → content`
-
+- **Notes:** ⚠️ API keys and personal credentials have been removed from the blueprint. Replace placeholders before importing.
+  
 ---
 
 ## 📧 Sample Output
@@ -164,7 +165,7 @@ Sprint Retrospective Summary — Sprint 14
 
 ## 📸 Screenshots
 
-*(Coming soon — Make.com scenario blueprint screenshot)*
+![Automation #4 – Sprint Retro Summariser](./screenshots/Sprint-Retro-Summariser.jpg)
 
 ---
 
