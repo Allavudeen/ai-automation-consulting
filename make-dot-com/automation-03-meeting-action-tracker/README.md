@@ -118,7 +118,8 @@ Meeting Notes:
 - **Groq Model:** `llama-3.3-70b-versatile`
 - **Temperature:** 0.2 (low — precise extraction needed)
 - **API Response Path:** `data → choices → [] → message → content`
-
+- **Note** ⚠️ API keys and personal credentials have been removed from the blueprint. Replace placeholders before importing.
+  
 ---
 
 ## 📧 Sample Output
@@ -146,7 +147,7 @@ Meeting Action Items — Sprint Planning | 16 Jun 2026
 
 ## 📸 Screenshots
 
-*(Coming soon — Make.com scenario blueprint screenshot)*
+![Automation #3 - Meeting Action Item Tracker](./screenshots/Meeting-Action-Item-Tracker.jpg)
 
 ---
 
