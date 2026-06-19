@@ -173,6 +173,7 @@ Please action within 24 hours to avoid sprint delivery impact.
 - **Temperature:** 0.1 (very low — precise classification required)
 - **API Response Path:** `data → choices → [] → message → content`
 - **Resilience:** Error handler modules added to prevent scenario failure on API timeout
+- **Notes:** ⚠️ API keys and personal credentials have been removed from the blueprint. Replace placeholders before importing.
 
 ---
 
@@ -184,7 +185,7 @@ Please action within 24 hours to avoid sprint delivery impact.
 
 ## 📸 Screenshots
 
-*(Coming soon — Make.com scenario blueprint screenshot)*
+![Automation #5.1 — Blocker Escalation Bot](./screenshots/Blocker-Escalation-Scenario.jpg)
 
 ---
 
