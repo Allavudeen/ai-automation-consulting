@@ -96,7 +96,8 @@ Weekly Standup Data:
 - **Temperature:** 0.4 (slightly creative for narrative-style reporting)
 - **API Response Path:** `data → choices → [] → message → content`
 - **Gmail formatting:** `<pre style="white-space: pre-wrap;">` to preserve line breaks in HTML email
-
+- ⚠️ API keys and personal credentials have been removed from the blueprint. Replace placeholders before importing.
+- 
 ---
 
 ## 📧 Sample Output Structure
@@ -125,8 +126,7 @@ Weekly Status Report — Week of [Date]
 
 ## 📸 Screenshots
 
-*(Coming soon — Make.com scenario blueprint screenshot)*
-
+![Automation #2 - Weekly Status Report Generator](./screenshots/Weekly-Standup-Status-Report-Generation.jpg)
 ---
 
 *Part of the [Make.com Automation Suite](../README.md) | [Back to Portfolio](../../README.md)*
