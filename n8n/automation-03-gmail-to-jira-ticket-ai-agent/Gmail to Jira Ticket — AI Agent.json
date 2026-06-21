@@ -1,0 +1,178 @@
+{
+  "name": "Gmail to Jira Ticket — AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -512,
+        16
+      ],
+      "id": "228aef1d-1dc4-405f-8b69-2566517cef85",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI assistant that extracts structured information from emails to create Jira tickets.\n\nExtract the following fields from the email below and respond ONLY in valid JSON format with no extra text:\n\n{\n  \"summary\": \"one-line title of the issue\",\n  \"description\": \"detailed description of the issue\",\n  \"priority\": \"1 or 2 or 3 or 4 or 5\",\n  \"labels\": [\"label1\", \"label2\"]\n}\n\nEmail Subject: {{ $json.Subject }}\nEmail Body: {{ $json.snippet }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -288,
+        16
+      ],
+      "id": "0c47f474-ea3c-4cd9-bf51-8752f21e615a",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -280,
+        240
+      ],
+      "id": "cdb96425-9e80-4dfa-b7fb-8edf8ff43d6f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GOOGLE_GEMINI_CREDENTIAL_ID",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"summary\": \"Login page throws 500 error on production for mobile users\",\n  \"description\": \"The login page is returning a 500 internal server error for mobile users when authenticating via Google SSO. Started after deployment on June 21, 2026.\",\n  \"priority\": \"High\",\n  \"labels\": [\"bug\", \"production\", \"mobile\", \"authentication\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -152,
+        240
+      ],
+      "id": "93f67d49-5ea6-45cc-9417-bf286804982c",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "YOUR_JIRA_PROJECT_ID",
+          "mode": "list",
+          "cachedResultName": "AI Automation Space"
+        },
+        "issueType": {
+          "__rl": true,
+          "value": "YOUR_JIRA_ISSUE_TYPE_ID",
+          "mode": "list",
+          "cachedResultName": "Task"
+        },
+        "summary": "={{ $json.output.summary }}",
+        "additionalFields": {
+          "description": "={{ $json.output.description }}",
+          "labels": "={{ $json.output.labels }}",
+          "priority": {
+            "__rl": true,
+            "value": "={{ $json.output.priority }}",
+            "mode": "id"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.jira",
+      "typeVersion": 1,
+      "position": [
+        64,
+        16
+      ],
+      "id": "54b9fbd3-5b39-4a77-8d77-61630f537d34",
+      "name": "Create an issue",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "YOUR_JIRA_CREDENTIAL_ID",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Create an issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "YOUR_VERSION_ID",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "YOUR_INSTANCE_ID"
+  },
+  "id": "YOUR_WORKFLOW_ID",
+  "tags": []
+}
