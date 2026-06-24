@@ -861,7 +861,7 @@
             },
             "mapper": {
                 "to": [
-                    "allavudeen@gmail.com"
+                    "YOUR_GMAIL_ADDRESS_HERE"
                 ],
                 "content": "{{8.data.choices[].message.content}}",
                 "subject": "Sprint Retrospective Summary – {{formatDate(now; \"DD MMM YYYY\")}}",
@@ -906,7 +906,7 @@
                                 "scoped": "true",
                                 "connection": "google-email"
                             },
-                            "label": "My Gmail connection (allavudeen@gmail.com)"
+                            "label": "My Gmail connection (YOUR_GMAIL_ADDRESS_HERE)"
                         }
                     }
                 },
@@ -1051,7 +1051,7 @@
                 ],
                 "sheetId": "Retro responses",
                 "sortOrder": "asc",
-                "spreadsheetId": "1dv7iC2PQfZFoTv0w-Vm-kG85HODc5lKQUxMGDYZXhWs",
+                "spreadsheetId": "YOUR_GOOGLE_SHEET_ID_HERE",
                 "tableFirstRow": "A1:Z1",
                 "includesHeaders": true,
                 "valueRenderOption": "FORMATTED_VALUE",
@@ -1104,7 +1104,7 @@
                                 "scoped": "true",
                                 "connection": "google"
                             },
-                            "label": "My Google connection (allavudeen@gmail.com)"
+                            "label": "My Google connection (YOUR_GMAIL_ADDRESS_HERE)"
                         }
                     }
                 },
@@ -1431,7 +1431,7 @@
                 },
                 "sheetId": "Retro responses",
                 "rowNumber": "{{11.`__ROW_NUMBER__`}}",
-                "spreadsheetId": "/1dv7iC2PQfZFoTv0w-Vm-kG85HODc5lKQUxMGDYZXhWs",
+                "spreadsheetId": "/YOUR_GOOGLE_SHEET_ID_HERE",
                 "includesHeaders": true,
                 "useColumnHeaders": false,
                 "valueInputOption": "USER_ENTERED"
@@ -1550,7 +1550,7 @@
                                 "scoped": "true",
                                 "connection": "google"
                             },
-                            "label": "My Google connection (allavudeen@gmail.com)"
+                            "label": "My Google connection (YOUR_GMAIL_ADDRESS_HERE)"
                         }
                     }
                 },
