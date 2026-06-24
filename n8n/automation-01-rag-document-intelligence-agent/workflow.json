@@ -19,7 +19,7 @@
           "__rl": true,
           "value": "YOUR_GOOGLE_DRIVE_FILE_ID",
           "mode": "list",
-          "cachedResultName": "Rules_of_Golf_Simplified_V1",
+          "cachedResultName": "YOUR_DOCUMENT_NAME",
           "cachedResultUrl": "https://docs.google.com/document/d/YOUR_GOOGLE_DRIVE_FILE_ID/edit?usp=drivesdk"
         },
         "options": {}
