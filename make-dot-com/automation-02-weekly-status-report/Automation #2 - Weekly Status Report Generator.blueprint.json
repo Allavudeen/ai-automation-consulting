@@ -1241,7 +1241,7 @@
             },
             "mapper": {
                 "to": [
-                    "allavudeen@gmail.com"
+                    "YOUR_GMAIL_ADDRESS_HERE"
                 ],
                 "content": "<p>Hi,</p>\r\n<p>Please find the automated weekly status report below.</p>\r\n<hr>\r\n<pre style=\"font-family: Arial, sans-serif; white-space: pre-wrap;\">{{6.reportText}}</pre>\r\n<hr>\r\n<p>This report was auto-generated from team standup updates.</p>\r\n<p>Regards,<br>Facility Office - Team</p>",
                 "subject": "Weekly Status Report — Week of {{formatDate(setDay(now; 2); \"DD MMM YYYY\")}}",
@@ -1285,7 +1285,7 @@
                                 "scoped": "true",
                                 "connection": "google-email"
                             },
-                            "label": "My Gmail connection (allavudeen@gmail.com)"
+                            "label": "My Gmail connection (YOUR_GMAIL_ADDRESS_HERE)"
                         }
                     }
                 },
