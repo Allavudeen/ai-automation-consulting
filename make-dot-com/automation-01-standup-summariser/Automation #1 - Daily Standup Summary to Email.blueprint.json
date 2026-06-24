@@ -202,7 +202,7 @@
                 },
                 "sheetId": "Form responses 1",
                 "rowNumber": "{{1.`__ROW_NUMBER__`}}",
-                "spreadsheetId": "1_geyX8bVFmEO27-p2Wsil8fUhAUZ1zmQvdIVvlenAW8",
+                "spreadsheetId": "YOUR_GOOGLE_SHEET_ID_HERE",
                 "tableFirstRow": "A1:Z1",
                 "valueInputOption": "USER_ENTERED"
             },
@@ -369,7 +369,7 @@
                                 "scoped": "true",
                                 "connection": "google"
                             },
-                            "label": "My Google connection (allavudeen@gmail.com)"
+                            "label": "My Google connection (YOUR_GMAIL_ADDRESS_HERE)"
                         }
                     }
                 },
@@ -1064,7 +1064,7 @@
                                 "scoped": "true",
                                 "connection": "google-email"
                             },
-                            "label": "My Gmail connection (allavudeen@gmail.com)"
+                            "label": "My Gmail connection (YOUR_GMAIL_ADDRESS_HERE)"
                         }
                     }
                 },
