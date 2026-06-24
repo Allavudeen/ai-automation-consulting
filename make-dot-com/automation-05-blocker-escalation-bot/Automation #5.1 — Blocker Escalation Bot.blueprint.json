@@ -28,7 +28,7 @@
                                 "scoped": "true",
                                 "connection": "slack2"
                             },
-                            "label": "My Slack (user) connection (foagile.slack.com - allavudeen)"
+                            "label": "YOUR_SLACK_CONNECTION (YOUR_WORKSPACE.slack.com - YOUR_USERNAME)"
                         },
                         "inputMethod": {
                             "label": "Select from a list"
@@ -1811,7 +1811,7 @@
                                                                 "scoped": "true",
                                                                 "connection": "slack2"
                                                             },
-                                                            "label": "My Slack (user) connection (foagile.slack.com - allavudeen)"
+                                                            "label": "YOUR_SLACK_CONNECTION (YOUR_WORKSPACE.slack.com - YOUR_USERNAME)"
                                                         }
                                                     }
                                                 },
@@ -3650,7 +3650,7 @@
                                                                 "scoped": "true",
                                                                 "connection": "slack2"
                                                             },
-                                                            "label": "My Slack (user) connection (foagile.slack.com - allavudeen)"
+                                                            "label": "YOUR_SLACK_CONNECTION (YOUR_WORKSPACE.slack.com - YOUR_USERNAME)"
                                                         }
                                                     }
                                                 },
@@ -5180,7 +5180,7 @@
                                                 "scoped": "true",
                                                 "connection": "slack2"
                                             },
-                                            "label": "My Slack (user) connection (foagile.slack.com - allavudeen)"
+                                            "label": "YOUR_SLACK_CONNECTION (YOUR_WORKSPACE.slack.com - YOUR_USERNAME)"
                                         }
                                     }
                                 },
