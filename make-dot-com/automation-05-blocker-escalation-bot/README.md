@@ -185,7 +185,10 @@ Please action within 24 hours to avoid sprint delivery impact.
 
 ## 📸 Screenshots
 
-![Automation #5.1 — Blocker Escalation Bot](./screenshots/Blocker-Escalation-Scenario.jpg)
+![Automation #5.1 — Blocker Escalation Bot](./screenshots/01-blocker-daily-standup.PNG)
+![Automation #5.1 — Blocker Escalation Bot](./screenshots/02-blockers-summary.PNG)
+![Automation #5.1 — Blocker Escalation Bot](./screenshots/03-blocker-escalation-scenario.PNG)
+![Automation #5.1 — Blocker Escalation Bot](./screenshots/04-blocker-scrum-escalation.PNG)
 
 ---
 
