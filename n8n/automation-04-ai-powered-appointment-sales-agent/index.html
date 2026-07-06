@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI Assistant Chat</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #eef3ff 0%, #e6f7ff 100%);
+    overflow: hidden;
+  }
+
+  #chat-widget-container {
+    width: 100%;
+    max-width: 760px;
+    height: 100dvh;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(43,108,255,0.18);
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Desktop: restore card look */
+  @media (min-width: 600px) {
+    body { padding: 16px; }
+    #chat-widget-container {
+      height: 88vh;
+      border-radius: 16px;
+    }
+  }
+
+  /* ── Header ── */
+  #chat-widget-header {
+    background: linear-gradient(90deg, #2b6cff, #4cc9f0);
+    color: #fff;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 17px;
+    flex-shrink: 0;
+    /* safe area for notch phones */
+    padding-top: max(14px, env(safe-area-inset-top));
+  }
+
+  #chat-widget-header .avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  #chat-widget-header .header-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+    min-width: 0;
+  }
+
+  #chat-widget-header .header-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #chat-widget-header .header-sub {
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  #chat-widget-header .status-dot {
+    width: 8px;
+    height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* ── Chat body ── */
+  #chat-widget-body {
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #f7f9fc;
+    display: flex;
+    flex-direction: column;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #chat-widget-body::-webkit-scrollbar { width: 6px; }
+  #chat-widget-body::-webkit-scrollbar-thumb {
+    background: #cfd9ee;
+    border-radius: 8px;
+  }
+
+  /* ── Messages ── */
+  .msg-row {
+    margin: 5px 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bot-row  { align-items: flex-start; }
+  .user-row { align-items: flex-end; }
+
+  .bot-msg, .user-msg {
+    padding: 10px 14px;
+    border-radius: 14px;
+    display: inline-block;
+    /* Mobile: allow up to 88% width; Desktop: cap at 75% */
+    max-width: min(88%, 540px);
+    line-height: 1.55;
+    font-size: 14px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .bot-msg {
+    background: #fff;
+    border: 1px solid #e6ebf5;
+    border-radius: 14px 14px 14px 4px;
+    color: #222;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  .user-msg {
+    background: linear-gradient(90deg, #2b6cff, #4cc9f0);
+    color: #fff;
+    border-radius: 14px 14px 4px 14px;
+  }
+
+  .msg-time {
+    font-size: 11px;
+    color: #aab3c5;
+    margin-top: 3px;
+    padding: 0 2px;
+  }
+
+  /* ── Suggestion chips ── */
+  .suggestion-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 4px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eef0f6;
+  }
+
+  .chip {
+    background: #fff;
+    border: 1px solid #cfe0ff;
+    color: #2b6cff;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+    /* easier tap target on mobile */
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+  }
+
+  .chip:hover, .chip:active { background: #2b6cff; color: #fff; border-color: #2b6cff; }
+  .chip.chip-warn  { border-color: #fcd34d; color: #b45309; }
+  .chip.chip-warn:hover, .chip.chip-warn:active  { background: #b45309; color: #fff; border-color: #b45309; }
+  .chip.chip-danger{ border-color: #fca5a5; color: #dc2626; }
+  .chip.chip-danger:hover, .chip.chip-danger:active { background: #dc2626; color: #fff; border-color: #dc2626; }
+
+  /* ── Footer / input bar ── */
+  #chat-widget-footer {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #eee;
+    padding: 10px 14px;
+    background: #fff;
+    gap: 10px;
+    flex-shrink: 0;
+    /* safe area for home-bar phones */
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  #chat-widget-input {
+    flex: 1;
+    border: 1px solid #dde3f0;
+    border-radius: 24px;
+    padding: 11px 16px;
+    font-size: 15px;          /* 16px prevents iOS auto-zoom */
+    outline: none;
+    background: #f7f9fc;
+    min-width: 0;
+    /* prevent font-size: 16px rule needed specifically on iOS */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* iOS: bump to 16px to suppress auto-zoom on focus */
+  @supports (-webkit-touch-callout: none) {
+    #chat-widget-input { font-size: 16px; }
+  }
+
+  #chat-widget-input:focus {
+    border-color: #2b6cff;
+    background: #fff;
+  }
+
+  #chat-widget-send {
+    background: linear-gradient(90deg, #2b6cff, #4cc9f0);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+    /* larger tap target */
+    touch-action: manipulation;
+  }
+
+  #chat-widget-send:hover  { opacity: 0.88; }
+  #chat-widget-send:active { opacity: 0.75; }
+
+  /* ── Typing indicator ── */
+  .typing-dots span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 0 1px;
+    background: #9aa6c0;
+    border-radius: 50%;
+    animation: blink 1.2s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes blink {
+    0%, 80%, 100% { transform: scale(1);   opacity: 0.5; }
+    40%           { transform: scale(1.3); opacity: 1;   }
+  }
+</style>
+</head>
+<body>
+
+<div id="chat-widget-container">
+  <div id="chat-widget-header">
+    <div class="avatar">🤖</div>
+    <div class="header-text">
+      <div class="header-name">Assistant</div>
+      <div class="header-sub"><span class="status-dot"></span>Online — Sales &amp; Appointments</div>
+    </div>
+  </div>
+
+  <div id="chat-widget-body">
+    <div class="msg-row bot-row">
+      <span class="bot-msg">Hi 👋 I'm your assistant. Here's what I can do for you:
+
+📊 <strong>Sales</strong> — look up transactions &amp; amounts
+📅 <strong>Appointments</strong> — book, reschedule, or cancel
+🔎 <strong>General</strong> — answer any question via web search
+
+How can I help you today?</span>
+    </div>
+    <div class="suggestion-chips" id="suggestion-chips">
+      <button class="chip" data-msg="Show me the highest sales transaction">📊 Sales lookup</button>
+      <button class="chip" data-msg="I'd like to book an appointment">📅 Book appointment</button>
+      <button class="chip chip-warn" data-msg="I'd like to reschedule my appointment">🔄 Reschedule</button>
+      <button class="chip chip-danger" data-msg="I'd like to cancel my appointment">❌ Cancel</button>
+      <button class="chip" data-msg="Where is the Eiffel Tower located?">🔎 Ask anything</button>
+    </div>
+  </div>
+
+  <div id="chat-widget-footer">
+    <input type="text" id="chat-widget-input" placeholder="Type your message..." autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true">
+    <button id="chat-widget-send" aria-label="Send">➤</button>
+  </div>
+</div>
+
+<script>
+  const webhookUrl = "http://localhost:5678/webhook/fe29d483-0d79-4eea-b43d-751efc07ed9f/chat";
+  const sessionId  = "session-" + Math.random().toString(36).substring(2, 10);
+
+  const chatBody  = document.getElementById("chat-widget-body");
+  const chatInput = document.getElementById("chat-widget-input");
+  const sendBtn   = document.getElementById("chat-widget-send");
+
+  sendBtn.addEventListener("click", sendMessage);
+  chatInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+
+  document.getElementById("suggestion-chips").addEventListener("click", (e) => {
+    const btn = e.target.closest(".chip");
+    if (!btn) return;
+    chatInput.value = btn.dataset.msg;
+    sendMessage();
+  });
+
+  /* Scroll chat body up when keyboard opens on mobile */
+  chatInput.addEventListener("focus", () => {
+    setTimeout(() => chatBody.scrollTop = chatBody.scrollHeight, 350);
+  });
+
+  function removeChips() {
+    const chips = document.getElementById("suggestion-chips");
+    if (chips) chips.remove();
+  }
+
+  function currentTime() {
+    return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+
+  async function sendMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    removeChips();
+    appendMessage(message, "user");
+    chatInput.value = "";
+    chatInput.blur(); // dismiss keyboard after sending on mobile
+
+    const typingEl = appendTyping();
+
+    try {
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatInput: message, sessionId })
+      });
+
+      const rawText = await response.text();
+      typingEl.remove();
+
+      if (!response.ok) {
+        appendMessage("⚠️ Webhook returned status " + response.status + ": " + rawText, "bot");
+        return;
+      }
+      if (!rawText) {
+        appendMessage("⚠️ Webhook responded with an empty body. Check your n8n workflow returns JSON.", "bot");
+        return;
+      }
+
+      let reply;
+      try {
+        const data = JSON.parse(rawText);
+        reply = data.output || data.reply || data.message || JSON.stringify(data);
+      } catch {
+        reply = rawText;
+      }
+      appendMessage(reply, "bot");
+
+    } catch (error) {
+      typingEl.remove();
+      appendMessage("⚠️ Error connecting to webhook: " + error.message, "bot");
+    }
+  }
+
+  function appendMessage(text, sender) {
+    const row  = document.createElement("div");
+    row.className = "msg-row " + (sender === "user" ? "user-row" : "bot-row");
+
+    const span = document.createElement("span");
+    span.className = sender === "user" ? "user-msg" : "bot-msg";
+    span.textContent = text;
+
+    const time = document.createElement("div");
+    time.className = "msg-time";
+    time.textContent = currentTime();
+
+    row.appendChild(span);
+    row.appendChild(time);
+    chatBody.appendChild(row);
+    chatBody.scrollTop = chatBody.scrollHeight;
+    return row;
+  }
+
+  function appendTyping() {
+    const row  = document.createElement("div");
+    row.className = "msg-row bot-row";
+    const span = document.createElement("span");
+    span.className = "bot-msg typing-dots";
+    span.innerHTML = "<span></span><span></span><span></span>";
+    row.appendChild(span);
+    chatBody.appendChild(row);
+    chatBody.scrollTop = chatBody.scrollHeight;
+    return row;
+  }
+</script>
+</body>
+</html>
