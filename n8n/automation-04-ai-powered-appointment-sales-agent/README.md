@@ -137,6 +137,19 @@ n8n/
 
 ---
 
+### N8N — N8N MCP Server Workflow
+> MCP Server Workflow with added modules to serve the client on its request
+
+![n8n](screenshots/08-mcp-server.jpg)
+
+---
+### N8N — N8N MCP Client Workflow
+> MCP Client Workflow with added Agnet and modules to serve via the chat assistance.
+
+![n8n](screenshots/08-mcp-client.jpg)
+
+---
+
 ## 🔗 Connect
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/allavudeen)
