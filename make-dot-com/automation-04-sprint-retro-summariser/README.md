@@ -164,7 +164,10 @@ Sprint Retrospective Summary — Sprint 14
 
 ## 📸 Screenshots
 
-*(Coming soon — Make.com scenario blueprint screenshot)*
+![Automation #04 — Sprint Retro Summariser](./screenshots/01-Feed-Sprint-Retro-Responses.jpg)
+![Automation #04 — Sprint Retro Summariser](./screenshots/02-Store-Sprint-Retro-Responses.jpg)
+![Automation #04 — Sprint Retro Summariser](./screenshots/03-Sprint-Retro-Summariser.jpg)
+![Automation #04 — Sprint Retro Summariser](./screenshots/04-Sprint-Retro-Summary-Mail.jpg)
 
 ---
 
