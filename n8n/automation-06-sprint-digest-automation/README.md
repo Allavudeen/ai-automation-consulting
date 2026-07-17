@@ -89,17 +89,21 @@ The digest correctly distinguishes explicit blockers from time-based risk, and c
 
 ## Screenshots
 
-**Sprint board** — the live data source, with overdue items flagged in red:
-![Jira board](screenshots/01-jira-board.jpg)
-
 **n8n workflow canvas:**
-![Workflow canvas](screenshots/02-workflow-canvas.jpg)
+![Workflow canvas](screenshots/01-workflow-canvas.jpg)
 
 **Sprint board detail view:**
-![Jira issues](screenshots/03-jira-issues.jpg)
+![Jira issues](screenshots/02-jira-board-issues.jpg)
 
 **Example blocked issue detail:**
-![Blocked issue](screenshots/04-blocked-issue.jpg)
+![Blocked issue](screenshots/03-blocked-issue.jpg)
 
-**Generated digest email:** *(add screenshot — see note below)*
-![Digest email](screenshots/05-digest-email.jpg)
+**Generated digest email:**
+![Digest email](screenshots/04-digest-email.jpg)
+
+
+## 🔗 Connect
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/allavudeen)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Allavudeen/ai-automation-consulting)
+[![Upwork](https://img.shields.io/badge/Upwork-6FDA44?style=for-the-badge&logo=upwork&logoColor=white)](https://www.upwork.com)
