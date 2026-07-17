@@ -1,0 +1,288 @@
+{
+  "name": "Sprint Digest Automation",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        -272
+      ],
+      "id": "2a26f7cb-3c0b-4841-8d52-92d4e66ab2c1",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "serverTransport": "sse",
+        "endpointUrl": "http://host.docker.internal:8811/sse",
+        "authentication": "bearerAuth",
+        "tool": {
+          "__rl": true,
+          "value": "searchJiraIssuesUsingJql",
+          "mode": "list",
+          "cachedResultName": "searchJiraIssuesUsingJql"
+        },
+        "parameters": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "cloudId": "YOUR_JIRA_CLOUD_ID",
+            "jql": "sprint in openSprints() AND project = PDPT ORDER BY duedate ASC",
+            "maxResults": 50,
+            "fields": "[\n  \"summary\",\n  \"status\",\n  \"duedate\",\n  \"assignee\",\n  \"issuetype\"\n]"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "cloudId",
+              "displayName": "cloudId",
+              "defaultMatch": false,
+              "required": true,
+              "display": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "fields",
+              "displayName": "fields",
+              "defaultMatch": false,
+              "required": false,
+              "display": true,
+              "type": "array",
+              "defaultValue": "[\n  \"string\"\n]",
+              "removed": false
+            },
+            {
+              "id": "jql",
+              "displayName": "jql",
+              "defaultMatch": false,
+              "required": true,
+              "display": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "maxResults",
+              "displayName": "maxResults",
+              "defaultMatch": false,
+              "required": false,
+              "display": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "nextPageToken",
+              "displayName": "nextPageToken",
+              "defaultMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "responseContentFormat",
+              "displayName": "responseContentFormat",
+              "defaultMatch": false,
+              "required": false,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "markdown",
+                  "value": "markdown"
+                },
+                {
+                  "name": "adf",
+                  "value": "adf"
+                }
+              ],
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -272
+      ],
+      "id": "5e980938-9af1-4c4d-a839-72f86ada2bea",
+      "name": "MCP Client",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "YOUR_BEARER_AUTH_CREDENTIAL_ID",
+          "name": "Bearer Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the MCP tool result (comes back as a JSON string inside content[0].text)\nconst data = $input.first().json.content[0].text;\nconst issues = data.issues;\n\nconst today = new Date();\ntoday.setHours(0, 0, 0, 0);\n\nconst processed = issues.map(issue => {\n  const fields = issue.fields;\n  const dueDate = fields.duedate ? new Date(fields.duedate) : null;\n  const status = fields.status?.name || \"Unknown\";\n  const summary = fields.summary || \"\";\n\n  const isBlocked = summary.toLowerCase().includes(\"blocked\");\n  const isOverdue = dueDate && dueDate < today && status !== \"Done\";\n  const isDone = status === \"Done\";\n\n  let riskLevel = \"on-track\";\n  if (isBlocked) riskLevel = \"blocked\";\n  else if (isOverdue) riskLevel = \"at-risk\";\n\n  return {\n    key: issue.key,\n    summary: summary,\n    status: status,\n    dueDate: fields.duedate || null,\n    assignee: fields.assignee?.displayName || \"Unassigned\",\n    issueType: fields.issuetype?.name || \"Task\",\n    riskLevel: riskLevel,\n    isDone: isDone,\n  };\n});\n\n// Group into buckets for the digest\nconst summary = {\n  total: processed.length,\n  done: processed.filter(i => i.isDone).length,\n  inProgress: processed.filter(i => i.status === \"In Progress\").length,\n  toDo: processed.filter(i => i.status === \"To Do\").length,\n  inReview: processed.filter(i => i.status === \"In Review\").length,\n  blocked: processed.filter(i => i.riskLevel === \"blocked\"),\n  atRisk: processed.filter(i => i.riskLevel === \"at-risk\"),\n  allIssues: processed,\n};\n\nreturn [{ json: summary }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        -272
+      ],
+      "id": "f5fe1c88-f1e6-46bb-8909-7a2f625170c4",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        232,
+        -48
+      ],
+      "id": "19548525-6403-4ce0-8778-30a889f8febd",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "YOUR_GROQ_CREDENTIAL_ID",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are writing a concise daily sprint digest for a Product/Engineering team lead.\n\nSprint data:\n- Total items: {{ $json.total }}\n- Done: {{ $json.done }}, In Progress: {{ $json.inProgress }}, To Do: {{ $json.toDo }}, In Review: {{ $json.inReview }}\n- Blocked items: {{ JSON.stringify($json.blocked) }}\n- At-risk (overdue) items: {{ JSON.stringify($json.atRisk) }}\n\nWrite a short, scannable standup digest with three sections:\n1. Progress snapshot (one line, e.g. \"3/11 items complete, on track\")\n2. Blockers needing attention (list each blocked item with its key and summary)\n3. At-risk items (list each overdue item with its key, summary, and how many days overdue)\n\nKeep it under 150 words, professional tone, use bullet points.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        160,
+        -272
+      ],
+      "id": "fd04a8d8-2acd-4866-bd80-61830f984e5b",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.text;\n\nlet html = raw\n  .replace(/\\*\\*(.*?)\\*\\*/g, \"<b>$1</b>\")\n  .replace(/\\n/g, \"<br>\");\n\nreturn [{ json: { htmlBody: html } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        -272
+      ],
+      "id": "f35b1ef1-9636-4ec9-8354-a0c23282f723",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "sendTo": "YOUR_EMAIL@example.com",
+        "subject": "=Sprint Digest — {{ $now.format(\"dd LLL yyyy\") }} ",
+        "message": "={{ $json.htmlBody }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        736,
+        -272
+      ],
+      "id": "b7ab6695-e9d2-42db-b6ea-cf49e1bb1b23",
+      "name": "Send a message",
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "MCP Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "YOUR_VERSION_ID",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "YOUR_N8N_INSTANCE_ID"
+  },
+  "id": "YOUR_WORKFLOW_ID",
+  "tags": []
+}
