@@ -1,0 +1,11 @@
+A few things worth knowing about how it works:
+
+Connection setup: the gear icon (top right) opens a panel to paste your production n8n webhook URL once it's activated — kept in memory for that browser tab, so it'll need re-entering after a page refresh unless you later host it with the URL hardcoded in.
+New chat: clears the visible thread and starts a fresh session ID, exactly as asked — everything before that stays scrollable in the same view until you hit it.
+Formatting: bold text from your n8n responses renders properly, and issue keys like PDPT-18 get an automatic monospace chip styling, since that's the actual content shape this tool deals with.
+Empty state: first-time users (a VP who's never touched it) get a plain-language welcome with clickable example prompts, so nobody has to guess what to type.
+Handles connection failures and "not connected yet" gracefully with a clear inline message rather than a silent failure or console error.
+
+Once you've reconnected Groq as primary tomorrow and have a live webhook URL, paste it into Settings and it's ready to test end-to-end.
+
+http://localhost:5678/webhook/jira-chat

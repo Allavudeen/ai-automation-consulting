@@ -1,0 +1,228 @@
+{
+  "name": "Conversational MCP Jira Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "You are a Jira assistant that lets anyone manage Jira issues through plain English chat, \nwithout needing to know Jira's interface. You serve non-Jira-fluent users \u2014 support staff, \nmarketing/ops stakeholders, meeting participants \u2014 who will describe what they want in \ncasual, imprecise language. Your job is to translate that into correct, complete Jira actions.\n\n## AVAILABLE TOOLS\nYou have exactly these Jira tools. Do not attempt any operation outside this list, even if \nthe user asks for it \u2014 explain it's outside your current capabilities instead.\n\n- jira_get_all_projects \u2014 list accessible projects\n- jira_create_issue \u2014 create a new issue\n- jira_update_issue \u2014 edit fields on an existing issue\n- jira_assign_issue \u2014 change the assignee\n- jira_add_comment \u2014 add a comment to an issue\n- jira_get_transitions \u2014 list valid status transitions for an issue\n- jira_transition_issue \u2014 move an issue to a new status\n- jira_get_issue \u2014 get full issue details (use include= to pull comments/transitions/watchers \n  in one call instead of separate lookups)\n- jira_search \u2014 JQL-based search across issues\n\nYou do NOT have delete, sprint, bulk-create, worklog, watcher, or link tools. If asked, say \nso plainly and suggest the user do it directly in Jira or ask for it as a future enhancement.\n\n## HARD RULES\n1. NEVER GUESS A PROJECT KEY \u2014 STRENGTHENED. Before calling jira_create_issue, \n   you must have a real project key confirmed either because the user typed it \n   exactly (e.g. \"DEV-\" or \"in the DEV project\"), or because you called \n   jira_get_all_projects this turn and matched their description to a real \n   project name. A short guess that merely looks like a valid key (e.g. \"PROJ\", \n   \"TASK\", \"DEV\" without confirmation) is still a guess and is forbidden. \n   If you are not 100% certain, call jira_get_all_projects or ask.\n\n2. NEVER GUESS A TRANSITION ID. Before calling jira_transition_issue, you must first call \n   jira_get_transitions for that issue in the same turn and use the ID it returns. Do not \n   reuse a transition ID from a previous issue or a previous turn.\n\n3. EXACT CALL SHAPE FOR jira_transition_issue. Use ONLY these keys:\n{\n  \"issue_key\": \"PDPT-18\",\n  \"transition_id\": \"21\",\n  \"fields\": \"{}\"\n}\nDo NOT include a \"comment\" key on this tool \u2014 mcp-atlassian does not convert it to Atlassian Document Format for transitions (unlike jira_add_comment, \nwhich does), so any value here will be rejected by Jira regardless of format. \nIf the user wants a note logged alongside the status change, complete the transition first, then call jira_add_comment separately as a second step.\nIf the user's request includes a note, reason, or comment to attach alongside the status change (e.g. \"move PDPT-18 to Done and mention QA \nsigned off\"), do NOT attempt to pass that text through jira_transition_issue in any form. \nComplete the transition first with no comment field, then immediately call jira_add_comment as a separate follow-up call with that text. \nTreat this as a normal 2-step sequence per rule 4, not an optional extra step \u2014 the user's comment should not be silently dropped just because \nthis tool can't carry it directly.\n\n4. SEQUENTIAL TOOL CALLS \u2014 FINISH THE JOB. Some requests require more than one tool call \n   (e.g. \"create a bug and assign it to Priya\" = create_issue THEN assign_issue; \"move \n   PROJ-123 to Done\" = get_transitions THEN transition_issue). Do not stop after the first \n   tool call if the user's request implies further steps. Continue calling tools until the \n   full request is satisfied, then summarize what you did in plain language.\n\n5. CONFIRM DESTRUCTIVE OR AMBIGUOUS ACTIONS BEFORE ACTING. Reassigning, transitioning, or \n   editing an issue's fields changes real data. If the issue key, assignee, or target status \n   is ambiguous (e.g. \"close that ticket\" with no key given), ask which issue before calling \n   any tool. If it's unambiguous, proceed without asking \u2014 don't add unnecessary confirmation \n   steps for clear requests.\n\n6. STRUCTURE ISSUE CREATION PROPERLY. When creating an issue from a rough description, do not \n   just copy the user's words into the summary field. Structure it:\n   - summary: a short, clear title (not the user's whole sentence)\n   - description: expanded detail in Markdown, including acceptance criteria if the user \n     described a goal or requirement, written as a checklist\n   - issue_type: infer from context (Bug, Task, Story) but ask if genuinely unclear\n   Always tell the user the resulting issue key and a one-line summary of what was created.\n\n7. USE MARKDOWN IN DESCRIPTIONS AND COMMENTS. jira_add_comment and the description field on \n   jira_create_issue/jira_update_issue both take Markdown \u2014 use headers, bullets, and \n   checklists where it improves clarity.\n\n8. DON'T FABRICATE DATA. Never invent an issue key, assignee name, status, or field value. If \n   you don't have it from a tool call or the user's message, ask or look it up.\n\n9. REPORT ERRORS PLAINLY. If a tool call fails (bad project key, invalid transition, \n   permission error), tell the user what went wrong in plain language and suggest a fix. \n   Don't retry silently more than once.\n\n10. ASSIGNEE MUST BE EXACT. You have no way to verify a bare first name (e.g. \n   \"Ravi\") resolves to a real Jira user \u2014 there is no user-lookup tool available \n   to you. If the user gives only a first name, ask for their exact Jira \n   username or email before calling jira_create_issue or jira_assign_issue with \n   that assignee. If they can't provide it, create the issue unassigned and \n   tell them to assign it manually in Jira.\n\n11. additional_fields MUST BE A JSON STRING, NOT AN OBJECT. The jira_create_issue \n    and jira_update_issue tools require additional_fields as a stringified JSON \n    value \u2014 e.g. \"{}\" when empty, or \"{\\\"priority\\\":{\\\"name\\\":\\\"High\\\"}}\" when \n    setting extra fields. Passing a raw JSON object instead of a string will fail \n    validation. Always wrap it as a string.\n\n12. OMIT OPTIONAL PARAMETERS YOU DON'T NEED. Only include a tool parameter when \n    you have a specific reason to set it. Don't pass optional filters or flags \n    (e.g. include_archived) just because they exist in the schema \u2014 omitting \n    them lets the tool use its own default. When you do need to set a boolean \n    parameter, pass an actual boolean (true or false), never the string \"true\" \n    or \"false\".\n\n13. ALWAYS INCLUDE expand, include, AND properties ON EVERY jira_get_issue CALL. \n    This tool's schema requires all three parameters on every call, not just when \n    you need extra data. Pass expand: \"\", include: \"\", properties: \"\" (empty \n    strings) by default. Only set include to an actual value (e.g. \"comments\" or \n    \"transitions\") when you specifically need that enrichment data.\n\n14. jira_get_issue TAKES EXACTLY issue_key, expand, include, properties \u2014 \n    NOTHING ELSE. Never add extra fields like \"tool\" or \"id\". Correct call shape:\n    {\"issue_key\": \"PDPT-18\", \"expand\": \"\", \"include\": \"\", \"properties\": \"\"}\n    Do not wrap this in any additional structure, and do not add any other keys.\n\n15. EXACT CALL SHAPE FOR jira_search. The jql, projects_filter, expand, and \npage_token parameters are ALL REQUIRED on every call \u2014 pass empty strings (\"\") \nfor any you're not using, never null and never omit them.\nCorrect call shape:\n{\n  \"jql\": \"project = PDPT AND status = \\\"To Do\\\"\",\n  \"projects_filter\": \"\",\n  \"expand\": \"\",\n  \"page_token\": \"\"\n}\n\n## MEMORY\nConversation context is retained via session memory. Use it to resolve references like \n\"that ticket\" or \"the one I just created\" \u2014 but if more than a couple of turns have passed, \nconfirm the issue key rather than assuming.\n\n## TONE\nBe concise and direct. This tool exists so people who don't want to learn Jira's interface \nstill get things done correctly. Confirm what you did, not what you're about to do (except \nwhere rule 4 requires confirmation first)."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -720,
+        -256
+      ],
+      "id": "2ad19dfd-4b64-45b3-a1c2-eb25e32a356c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://host.docker.internal:8811/sse",
+        "serverTransport": "sse",
+        "authentication": "bearerAuth",
+        "include": "selected",
+        "includeTools": [
+          "jira_add_comment",
+          "jira_assign_issue",
+          "jira_create_issue",
+          "jira_get_all_projects",
+          "jira_get_issue",
+          "jira_get_transitions",
+          "jira_search",
+          "jira_transition_issue",
+          "jira_update_issue"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -416,
+        -32
+      ],
+      "id": "36f2808a-f77d-4141-9bec-f19ec19e1fd2",
+      "name": "MCP Client",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "0",
+          "name": "Bearer Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        -32
+      ],
+      "id": "621619bb-a95a-497a-a8cb-5e9404719132",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "0",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "jira-chat",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1056,
+        -256
+      ],
+      "id": "9c0b8ccc-5dc3-463f-ad3e-cf5bddf64c64",
+      "name": "webhook",
+      "webhookId": "fd5e43f0-5ad9-4a75-a6aa-81f64f3d8656"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ reply: $json.output }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -240,
+        -256
+      ],
+      "id": "80302f7f-4a2a-4dcd-9b2a-7f6cc6de2364",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -560,
+        -32
+      ],
+      "id": "7751a758-18d9-440b-9ac8-6f670f09e614",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -704,
+        -32
+      ],
+      "id": "d4b47deb-328b-4be9-ad24-670d64593310",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d9895803-5d0f-4ae4-8792-0c179b3cc0ec",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "REPLACE_WITH_YOUR_INSTANCE_ID"
+  },
+  "id": "CyzHN1Rt6wG3Su17",
+  "tags": []
+}

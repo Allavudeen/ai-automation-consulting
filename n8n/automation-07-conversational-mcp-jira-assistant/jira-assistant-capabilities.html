@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jira Assistant — Capabilities</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-950:#0a1628; --navy-800:#122240;
+    --blue-600:#2f6fed; --blue-500:#4f8fff; --blue-400:#6fa1ff;
+    --ice-50:#f6f9ff; --ice-100:#eaf1ff;
+    --slate-300:#aebdd9; --slate-400:#8fa0be; --slate-500:#6a7ba0;
+    --glass-bg:rgba(255,255,255,0.055); --glass-bg-strong:rgba(255,255,255,0.09);
+    --glass-border:rgba(255,255,255,0.14);
+    --amber:#f5b95a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;font-family:'IBM Plex Sans',sans-serif;color:var(--ice-50);
+    background:
+      radial-gradient(1200px 800px at 15% -10%, #1a2f56 0%, transparent 60%),
+      radial-gradient(1000px 700px at 110% 10%, #16264a 0%, transparent 55%),
+      linear-gradient(180deg, var(--navy-950) 0%, #0d1a30 100%);
+    min-height:100vh;-webkit-font-smoothing:antialiased;
+  }
+  .aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+  .blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:0.5;}
+  .blob1{width:520px;height:520px;top:-160px;left:-120px;background:radial-gradient(circle,rgba(79,143,255,0.5),transparent 70%);}
+  .blob2{width:460px;height:460px;bottom:-180px;right:-100px;background:radial-gradient(circle,rgba(111,161,255,0.35),transparent 70%);}
+
+  .wrap{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:44px 24px 60px;}
+
+  .hero{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
+  .logo-mark{
+    width:44px;height:44px;border-radius:13px;flex-shrink:0;
+    background:linear-gradient(135deg,var(--blue-500),var(--blue-600) 60%,#1c3f9c);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 14px rgba(47,111,237,0.45), inset 0 1px 0 rgba(255,255,255,0.25);
+  }
+  .logo-mark svg{width:23px;height:23px;}
+  .hero h1{font-family:'Manrope',sans-serif;font-weight:800;font-size:26px;margin:0;letter-spacing:-0.01em;}
+  .hero p{margin:2px 0 0;font-size:13px;color:var(--slate-400);}
+
+  .lede{
+    margin:24px 0 34px;padding:22px 26px;
+    background:var(--glass-bg);border:1px solid var(--glass-border);
+    border-radius:18px;backdrop-filter:blur(18px);
+    font-size:14.5px;line-height:1.7;color:var(--slate-300);
+  }
+  .lede strong{color:var(--ice-50);}
+
+  h2.section{
+    font-family:'Manrope',sans-serif;font-weight:700;font-size:15px;
+    color:var(--slate-400);text-transform:uppercase;letter-spacing:0.06em;
+    margin:38px 0 16px;
+  }
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:680px){ .grid{grid-template-columns:1fr;} }
+
+  .card{
+    padding:20px;background:var(--glass-bg);border:1px solid var(--glass-border);
+    border-radius:16px;backdrop-filter:blur(16px);
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .card-head{display:flex;align-items:center;gap:10px;}
+  .card-icon{
+    width:32px;height:32px;border-radius:9px;flex-shrink:0;
+    background:rgba(79,143,255,0.12);border:1px solid rgba(79,143,255,0.28);
+    display:flex;align-items:center;justify-content:center;color:var(--blue-400);
+  }
+  .card-icon svg{width:16px;height:16px;}
+  .card h3{font-family:'Manrope',sans-serif;font-size:15px;font-weight:700;margin:0;color:var(--ice-50);}
+  .card p{margin:0;font-size:13px;line-height:1.6;color:var(--slate-300);}
+  .example{
+    margin-top:2px;padding:9px 12px;border-radius:10px;
+    background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.16);
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--blue-400);
+    line-height:1.55;
+  }
+  .example::before{content:"\201C ";color:var(--slate-500);}
+  .example::after{content:" \201D";color:var(--slate-500);}
+
+  .not-yet{
+    margin-top:14px;padding:20px 24px;
+    background:rgba(79,143,255,0.07);border:1px solid rgba(79,143,255,0.24);
+    border-radius:16px;
+  }
+  .not-yet h3{
+    font-family:'Manrope',sans-serif;font-size:14px;font-weight:700;margin:0 0 8px;
+    color:var(--blue-400);display:flex;align-items:center;gap:7px;
+  }
+  .not-yet p{margin:0 0 10px;font-size:13px;color:var(--slate-300);line-height:1.6;}
+  .not-yet ul{margin:0;padding-left:18px;font-size:13px;color:var(--slate-400);line-height:1.9;}
+
+  .footer-note{
+    margin-top:36px;padding:16px 20px;border-radius:14px;
+    background:var(--glass-bg);border:1px solid var(--glass-border);
+    font-size:12.5px;color:var(--slate-400);line-height:1.6;
+    display:flex;gap:10px;align-items:flex-start;
+  }
+  .footer-note svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;color:var(--slate-400);}
+</style>
+</head>
+<body>
+<div class="aurora"><div class="blob blob1"></div><div class="blob blob2"></div></div>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><path d="M12 22V12M12 12L3 7M12 12l9-5" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    </div>
+    <div>
+      <h1>Jira Assistant — What it can do</h1>
+      <p>A quick reference for the conversational Jira interface</p>
+    </div>
+  </div>
+
+  <div class="lede">
+    This assistant lets you manage Jira issues in <strong>plain English</strong> — no project keys, transition IDs, or JQL to memorize. Type what you want the way you'd say it to a teammate, and it translates that into the correct Jira action. Below is what it currently supports, with real example phrasings.
+  </div>
+
+  <h2 class="section">Core capabilities</h2>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></div>
+        <h3>Look up an issue</h3>
+      </div>
+      <p>Pulls full details on any issue — status, assignee, comments, and available next steps — in a single request.</p>
+      <div class="example">What's the status of PDPT-18?</div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M3 12h18M3 18h18"/></svg></div>
+        <h3>Search across issues</h3>
+      </div>
+      <p>Finds issues matching a description — by project, status, type, or a mix — without writing any query syntax.</p>
+      <div class="example">Show me everything still in To Do on the PDPT project</div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></div>
+        <h3>Create an issue</h3>
+      </div>
+      <p>Turns a rough description into a properly structured Bug, Task, or Story — with a clear title, expanded description, and acceptance criteria when relevant.</p>
+      <div class="example">Create a bug: login page fails on Safari</div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></div>
+        <h3>Update issue fields</h3>
+      </div>
+      <p>Edits a title, description, or other fields on an existing issue.</p>
+      <div class="example">Update PDPT-19's summary to "Login Page Failing on Safari - Confirmed Repro"</div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div>
+        <h3>Assign an issue</h3>
+      </div>
+      <p>Reassigns an issue to a teammate. Needs their exact email or Jira username — first names alone can't be safely matched.</p>
+      <div class="example">Assign PDPT-14 to priya@company.com</div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div>
+        <h3>Add a comment</h3>
+      </div>
+      <p>Adds a comment to an issue's activity log — useful for status notes or context for the next person.</p>
+      <div class="example">Add a comment on PDPT-18: waiting on QA confirmation before closing</div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+        <h3>Move an issue's status</h3>
+      </div>
+      <p>Transitions an issue to a new status — the assistant checks which transitions are actually valid for that issue before moving it, so it won't guess.</p>
+      <div class="example">Move PDPT-18 to In Progress</div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+        <h3>List your projects</h3>
+      </div>
+      <p>Shows every Jira project you have access to, with its key — a good starting point if you're not sure what's available.</p>
+      <div class="example">What Jira projects do I have access to?</div>
+    </div>
+
+  </div>
+
+  <h2 class="section">Growing on demand</h2>
+  <div class="not-yet">
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2L12 16.4 5.7 21l2.3-7.2-6-4.6h7.6z"/></svg>~200 more capabilities available across Jira &amp; Confluence</h3>
+    <p>This version covers the actions your team uses most day-to-day. Beyond these, the underlying platform supports roughly 200 additional Jira and Confluence capabilities — sprint management, bulk operations, worklogs, watchers, issue linking, Confluence page creation and search, and more — any of which can be enabled on request as your workflow needs grow.</p>
+    <p>Currently active in this version:</p>
+    <ul>
+      <li>Issue lookup, search, creation, updates, assignment</li>
+      <li>Comments and status transitions</li>
+      <li>Project visibility</li>
+    </ul>
+  </div>
+
+  <div class="footer-note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>This assistant makes real changes to your Jira workspace. It will ask for confirmation before anything ambiguous or destructive — but for critical changes, it's good practice to verify the result directly in Jira.</div>
+  </div>
+
+</div>
+</body>
+</html>
